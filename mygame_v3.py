@@ -1,6 +1,6 @@
 import pygame, random, math
 from pygame import mixer
-from mygame_utils import Player, Asteroid, Background, Missile
+from mygame_utils import Player, Enemy, Background, Missile
 from pygame.locals import (
     K_UP,
     K_DOWN,
@@ -11,11 +11,12 @@ from pygame.locals import (
     K_SPACE,
     K_1,
     K_2,
+    K_3,
+    K_4,
+    K_5,
+    K_6,
     QUIT,
 )
-
-clock = pygame.time.Clock()
-FPS = 60
 
 # Init missiles
 missiles = pygame.sprite.Group()
@@ -23,8 +24,8 @@ missiles = pygame.sprite.Group()
 pygame.font.init()
 my_font = pygame.font.SysFont(None, 16)
 # Init counters
-asteroidsHit = 0
-asteroidsDestroyed = 0
+enemysHit = 0
+enemysDestroyed = 0
 
 SCREEN_WIDTH = 1366
 SCREEN_HEIGHT = 768
@@ -34,7 +35,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Top Gun 2D")
 
 # Load background image
-bg_image = pygame.image.load('background2.png').convert()
+bg_image = pygame.image.load('space.png').convert()
 
 bg_width = bg_image.get_width()
 titles = math.ceil(SCREEN_WIDTH/ bg_width)
@@ -46,11 +47,13 @@ font = pygame.font.SysFont(None, 64)
 # Set up the menu text
 menu_text = font.render("My Game Menu", True, (255, 255, 255))
 
+background_2 = pygame.image.load('background.png').convert()
+
 # Set up the menu text position
 text_pos = menu_text.get_rect(centerx=SCREEN_WIDTH/2, centery=SCREEN_HEIGHT/2)
     
 def main_menu():
-    menu_options = ["Press 1 to Start Game", "Press 2 to Quit"]
+    menu_options = ["Press 1 to Start Game", "Press 2 to Quit", "Press 3 for Overload by Meteor", "Press 4 for Mighty Wings", "Press 5 for Skyline in Halo 3: ODST", "Press 6 for Song Ace Combat 7 Remix of Danger Zone"]
     selected_option = 0
     
     while True:
@@ -62,7 +65,18 @@ def main_menu():
                 elif event.key == K_2:
                     pygame.quit()
                     quit()
-        
+                elif event.key == K_3:
+                    mixer.music.load('song1.mp3')
+                    mixer.music.play(-1)
+                elif event.key == K_4:
+                    mixer.music.load('song2.mp3')
+                    mixer.music.play(-1)
+                elif event.key == K_5:
+                    mixer.music.load('song3.mp3')
+                    mixer.music.play(-1)
+                elif event.key == K_6:
+                    mixer.music.load('song4.mp3')
+                    mixer.music.play(-1)
         # Render menu options
         screen.fill((0, 0, 0))
         for i, option in enumerate(menu_options):
@@ -83,11 +97,13 @@ pygame.time.set_timer(ADDENEMY, 500)
 
 player = Player()
 background = Background()
+main_menu_background = background_2
 
 # Create groups to hold enemy sprites and all sprites
 # - enemies is used for collision detection and position updates
 # - all_sprites is used for rendering
-asteroids = pygame.sprite.Group()
+enemys = pygame.sprite.Group()
+
 all_sprites = pygame.sprite.Group()
 all_sprites.add(player)
 all_sprites.add(background)
@@ -102,8 +118,6 @@ isBig = False
 isLarge = False
 
 Goose = pygame.mixer.Sound("goose.mp3")
-mixer.music.load('audio.mp3')
-mixer.music.play(-1)
 
 #ChatGPT said to change this to 0
 updatePicFrame = 0
@@ -129,44 +143,33 @@ while running:
         elif event.type == QUIT:
             running = False
 
-            # Add a new asteroid
+            # Add a new enemy
         elif event.type == ADDENEMY:
-            # newAsteroid = createNewAsteroid(elementId, isBig, isLarge)
-            newAsteroid = Asteroid(elementId)
-            asteroids.add(newAsteroid)
-            all_sprites.add(newAsteroid)
+            # newEnemy = createNewEnemy(elementId, isBig, isLarge)
+            newEnemy = Enemy(elementId)
+            enemys.add(newEnemy)
+            all_sprites.add(newEnemy)
             elementId = elementId+1
-
-        ## Add following inside while-loop
-
-
+            
         # If button "space bar" is hit
         if pressed_keys[K_SPACE] and len(missiles) == 0:
             newMissile = Missile(player.getPosition())
             missiles.add(newMissile)
             all_sprites.add(newMissile)
 
-        # Count asteroids white
-
-        asteroidsHit = asteroidsHit + 1
-
-
-    missiles.update()
-
-    
-    # When missile collides asteroid
-    for asteroid in asteroids:
+    missiles.update()    
+    # When missile collides enemy
+    for enemy in enemys:
         for missile in missiles:
-            collidedMissile = pygame.sprite.collide_mask(missile, asteroid)
+            collidedMissile = pygame.sprite.collide_mask(missile, enemy)
             if collidedMissile:
                 missile.kill()
-                asteroid.crash()
+                enemy.crash()
 
-        
     # Update enemy position
-    asteroids.update()
+    enemys.update()
 
-    for elem in asteroids:
+    for elem in enemys:
         updatePicFrame = updatePicFrame+1
         if updatePicFrame == 50:
             elem.updatePic()
@@ -181,7 +184,7 @@ while running:
             
     # Check if any enemies have collided with the player
     isPlayerKilled = False
-    for elem in asteroids:
+    for elem in enemys:
         mixer.init()
         collide = pygame.sprite.collide_mask(elem, player)
         if collide and elem.crashed == True:
@@ -211,4 +214,3 @@ Goose.play()
 
 # Quit the game
 pygame.display.quit()
-

@@ -1,0 +1,17 @@
+General To Do:
+-Add split-screen
+-Add options for music in menu
+
+Missiles:
+-Add a lock on system with sounds
+-Add sounds to when you destroy it
+
+Enemy AI:
+-Make them move. Perhaps in a V/W motion.
+-Make them shoot bullets or missiles? Bullets seem like a bad idea.
+
+
+Player:
+-Make an after-burner animation
+-Make chaff and flares(but no need to add a confusing heat signature 
+thing, just make the missile explode/turn off collison for a lil bit)
